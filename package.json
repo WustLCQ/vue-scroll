@@ -1,0 +1,38 @@
+{
+  "name": "vue-scroll",
+  "version": "1.0.0",
+  "description": "A vue directive to resolve scroll problem in mobile",
+  "main": "disk/vue-scroll.js",
+  "scripts": {
+    "test": "xo && npm run build",
+    "build": "bili --format umd --module-name VueScroll",
+    "example": "poi",
+    "example:build": "poi build",
+    "deploy": "npm run example:build && gh-pages -d ./example/dist",
+    "prepublish": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WustLCQ/vue-scroll.git"
+  },
+  "author": "WustLCQ",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/WustLCQ/vue-scroll/issues"
+  },
+  "homepage": "https://github.com/WustLCQ/vue-scroll#readme",
+  "devDependencies": {
+    "bili": "^0.16.0-rc.2",
+    "eslint-config-rem": "^3.1.0",
+    "gh-pages": "^1.0.0",
+    "poi": "^9.4.3",
+    "postcss-nested": "^1.0.0",
+    "xo": "^0.18.2"
+  },
+  "xo": {
+    "extends": "rem/prettier",
+    "ignores": [
+      "example/**"
+    ]
+  }
+}
