@@ -1,7 +1,12 @@
 <template>
     <ul
         id="app"
-        v-scroll
+        class="m-list"
+        v-scroll="{
+            pullDown: true,
+            pullUp: true,
+            onPullUp: onPullUp
+        }"
     >
         <li
             class="app-item"
@@ -21,6 +26,11 @@ export default {
         for (let i = 1; i < 50; i++) {
             this.items.push(i);
         }
+    },
+    methods: {
+        onPullUp () {
+            console.log('hello')
+        }
     }
 }
 </script>
@@ -28,6 +38,10 @@ export default {
 * {
     margin: 0;
     padding: 0;
+}
+.m-list {
+    height: 300px;
+    overflow: auto;
 }
 .app-item {
     list-style: none;
