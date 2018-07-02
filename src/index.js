@@ -1,17 +1,21 @@
 
 const initConfig = {
-    pullDown: true,
-    pullUp: true,
-    pullDownDistance: 50,
-    pullUpDistance: 50,
-    onPullDown: null,
-    onPullUp: null
+    pullDown: true, // 是否允许下拉
+    pullUp: true, // 是否允许上拉
+    pullDownDistance: 20, // 触发下拉回调函数的距离
+    maxDownDistance: 100, // 允许下拉最远距离
+    pullUpDistance: 20, // 触发上拉回调函数的距离
+    maxUpDistance: 100, // 允许上拉最远距离
+    onPullDown: null, // 下拉回调函数
+    onPullUp: null // 上拉回调函数
 };
 function plugin (Vue, { name = 'scroll' } = {}) {
-    let savedClientY = 0;
-    let savedScrollTop = 0;
+    let savedClientY = 0; // 保存的手指开始触摸时的位置
+    let savedScrollTop = 0; // 保存的滚动条位置
+    let maxPullDistance = 0; // 距离顶部/底部最远距离
     let removeTouchStartListener, removeTouchMoveListener, removeTouchEndListener;
 
+    // 获取滚动元素的容器
     const getScrollParentNode = (el) => {
         let currentNode = el;
         while (currentNode && currentNode.tagName !== 'HTML' && currentNode.tagName !== 'BODY') {
@@ -23,6 +27,7 @@ function plugin (Vue, { name = 'scroll' } = {}) {
         }
         return window;
     }
+    // 获取滚动的距离
     const getScrollTop = (el) => {
         const scrollNode = getScrollParentNode(el);
         if (scrollNode === window) {
@@ -32,10 +37,13 @@ function plugin (Vue, { name = 'scroll' } = {}) {
         }
     }
 
-    const pullUpCallback = (el) => {
-        const scrollParentNode = getScrollParentNode(el);
-        if (scrollParentNode === window) {
-            console.log(el.scrollTop)
+    // 获取在滚动容器内的高度
+    const getHeight = (el) => {
+        const scrollNode = getScrollParentNode(el);
+        if (scrollNode === window) {
+            return window.outerHeight;
+        } else {
+            return parseInt(getComputedStyle(el).height.replace('px', ''), 10);
         }
     }
 
@@ -55,16 +63,20 @@ function plugin (Vue, { name = 'scroll' } = {}) {
         const handleTouchMove = (event) => {
             const clientY = event.touches[0].clientY;
             const { pullDown,
-                pullUp} = config;
+                pullUp,
+                maxDownDistance,
+                maxUpDistance } = config;
             const scrollTop = getScrollTop(el);
             if (pullDown && clientY > savedClientY) {
-                // pull down
-                if (scrollTop === 0) {
+                // 滑动到顶部
+                if (scrollTop === 0 && maxPullDistance < maxDownDistance) {
+                    maxPullDistance = clientY - savedClientY - savedScrollTop > maxPullDistance ? clientY - savedClientY - savedScrollTop : maxPullDistance;
                     el.style.transform = `translateY(${clientY - savedClientY - savedScrollTop}px)`;
                 }
             } else if (pullUp && clientY < savedClientY) {
-                // pull up
-                if (scrollTop + parseInt(getComputedStyle(el).height.replace('px', ''), 10) === el.scrollHeight) {
+                // 滑动到底部
+                if (scrollTop + getHeight(el) === el.scrollHeight && maxPullDistance < maxUpDistance) {
+                    maxPullDistance = Math.abs(clientY - savedClientY) > maxPullDistance ? Math.abs(clientY - savedClientY) : maxPullDistance;
                     el.style.transform = `translateY(${clientY - savedClientY}px)`;
                 }
             }
@@ -77,21 +89,18 @@ function plugin (Vue, { name = 'scroll' } = {}) {
     }
     const touchEndListener = (el, config) => {
         const handleTouchEnd = (event) => {
-            const clientY = event.changedTouches[0].clientY;
             const { pullDown,
                 pullUp ,
                 pullDownDistance,
                 pullUpDistance,
                 onPullDown,
                 onPullUp } = config;
-
-            if (pullDown && clientY - savedClientY > pullDownDistance) {
-                pullUpCallback(el);
+            if (pullDown && maxPullDistance > pullDownDistance) {
                 onPullDown && onPullDown();
-            } else if (pullUp && savedClientY - clientY > pullUpDistance) {
+            } else if (pullUp && maxPullDistance > pullUpDistance) {
                 onPullUp && onPullUp();
             }
-
+            maxPullDistance = 0; // 结束上/下拉后最远距离置0
             el.style.transform = '';
         }
         el.addEventListener('touchend', handleTouchEnd);

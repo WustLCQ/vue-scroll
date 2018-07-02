@@ -5,7 +5,8 @@
         v-scroll="{
             pullDown: true,
             pullUp: true,
-            onPullUp: onPullUp
+            onPullUp: onPullUp,
+            onPullDown: onPullDown
         }"
     >
         <li
@@ -29,7 +30,10 @@ export default {
     },
     methods: {
         onPullUp () {
-            console.log('hello')
+            console.log('onPullUp')
+        },
+        onPullDown () {
+            console.log('onPullDown')
         }
     }
 }
