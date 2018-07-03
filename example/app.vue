@@ -43,10 +43,10 @@ export default {
     margin: 0;
     padding: 0;
 }
-.m-list {
+/* .m-list {
     height: 300px;
     overflow: auto;
-}
+} */
 .app-item {
     list-style: none;
     height: 30px;

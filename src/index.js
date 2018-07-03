@@ -41,7 +41,7 @@ function plugin (Vue, { name = 'scroll' } = {}) {
     const getHeight = (el) => {
         const scrollNode = getScrollParentNode(el);
         if (scrollNode === window) {
-            return window.outerHeight;
+            return Math.max(document.documentElement.clientHeight, document.body.clientHeight);
         } else {
             return parseInt(getComputedStyle(el).height.replace('px', ''), 10);
         }
